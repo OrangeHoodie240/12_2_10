@@ -1,27 +1,45 @@
+class Player{
+  constructor(color, num){
+    this.color = color; 
+    this.num = num; 
+  }
+
+  toString(){
+    return this.num + '';
+  }
+}
+
+
 class Game{
   constructor(height, width){
     this.WIDTH = width; 
     this.HEIGHT = height; 
     this.board = [];
-    this.currPlayer = 1;
     this.gameActive = false; 
     this.activateBtn = document.querySelector('#start');
-
     this.activateBtn.addEventListener('click', ()=>this.startGame());
-    
     this.makeBoard(); 
     this.makeHtmlBoard(); 
   }
 
+  loadPlayers(){
+    this.p1 = new Player(document.querySelector('#p1Color').value, 1);
+    this.p2 = new Player(document.querySelector('#p2Color').value, 2);
+    this.currPlayer = this.p1;
+  }
+
   startGame = ()=>{
+    this.loadPlayers(); 
     this.gameActive = true;
     this.activateBtn.removeEventListener('click', this.startGame); 
     this.activateBtn.innerText = 'Restart Game'; 
     this.activateBtn.addEventListener('click', ()=>this.restartGame());
+    document.querySelector('#colorDir').style.display = 'block';
 
   }
 
   restartGame(){
+    this.loadPlayers();
     this.gameActive = true;
     this.board = [];
     document.querySelector('#board').innerHTML = '';
@@ -77,7 +95,7 @@ class Game{
   placeInTable(y, x) {
     const piece = document.createElement('div');
     piece.classList.add('piece');
-    piece.classList.add(`p${this.currPlayer}`);
+    piece.style.backgroundColor = this.currPlayer.color; 
     piece.style.top = -50 * (y + 2);
   
     const spot = document.getElementById(`${y}-${x}`);
@@ -96,7 +114,11 @@ class Game{
     
     // get x from ID of clicked cell
     const x = +evt.target.id;
-  
+
+    // noticed that when the player clicks in between cells x is set to NaN so i'm rejecting those clicks.
+    if(Number.isNaN(x)){
+      return; 
+    }
     // get next spot in column (if none, ignore click)
     const y = this.findSpotForCol(x);
     if (y === null) {
@@ -104,7 +126,7 @@ class Game{
     }
   
     // place piece in board and add to HTML table
-    this.board[y][x] = this.currPlayer;
+    this.board[y][x] = this.currPlayer.num;
     this.placeInTable(y, x);
     
     // check for win
@@ -118,7 +140,7 @@ class Game{
     }
       
     // switch players
-    this.currPlayer = this.currPlayer === 1 ? 2 : 1;
+    this.currPlayer = this.currPlayer === this.p1 ? this.p2 : this.p1;
   }
 
   checkForWin() {
@@ -133,7 +155,7 @@ class Game{
           y < this.HEIGHT &&
           x >= 0 &&
           x < this.WIDTH &&
-          this.board[y][x] === this.currPlayer
+          this.board[y][x] === this.currPlayer.num
       );
     }
   
