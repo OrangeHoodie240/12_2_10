@@ -4,9 +4,29 @@ class Game{
     this.HEIGHT = height; 
     this.board = [];
     this.currPlayer = 1;
+    this.gameActive = false; 
+    this.activateBtn = document.querySelector('#start');
 
+    this.activateBtn.addEventListener('click', ()=>this.startGame());
+    
     this.makeBoard(); 
     this.makeHtmlBoard(); 
+  }
+
+  startGame = ()=>{
+    this.gameActive = true;
+    this.activateBtn.removeEventListener('click', this.startGame); 
+    this.activateBtn.innerText = 'Restart Game'; 
+    this.activateBtn.addEventListener('click', ()=>this.restartGame());
+
+  }
+
+  restartGame(){
+    this.gameActive = true;
+    this.board = [];
+    document.querySelector('#board').innerHTML = '';
+    this.makeBoard(); 
+    this.makeHtmlBoard();
   }
 
   makeBoard() {
@@ -65,10 +85,15 @@ class Game{
   }
 
   endGame(msg) {
+    this.gameActive = false;
     alert(msg);
   }
 
   handleClick(evt) {
+    if(!this.gameActive){
+      return;
+    }
+    
     // get x from ID of clicked cell
     const x = +evt.target.id;
   
